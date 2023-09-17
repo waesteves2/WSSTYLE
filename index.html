@@ -1,14 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciamento de Ganhos</title>
-    <link rel="shortcut icon"
-        href="https://png.pngtree.com/png-clipart/20200701/original/pngtree-mustache-icon-design-illustration-png-image_5347943.jpg"
-        type="image/x-icon">
-
+    <link rel="shortcut icon" href="https://png.pngtree.com/png-clipart/20200701/original/pngtree-mustache-icon-design-illustration-png-image_5347943.jpg" type="image/x-icon">
 
     <style>
         body {
@@ -41,7 +37,6 @@
             color: goldenrod;
             text-align: center;
             font-size: 15px;
-
         }
 
         button {
@@ -82,7 +77,6 @@
         }
 
         @media (max-width: 768px) {
-
             select,
             input[type="text"] {
                 width: 100%;
@@ -95,33 +89,70 @@
         }
 
         img {
-
             width: 100%;
             height: 100%;
         }
 
         .container {
-
             width: 100%;
             padding: 25px;
             background-color: black;
         }
 
-      h1{
-
-        font-size: 20px;
-
-      }
+        h1 {
+            font-size: 20px;
+        }
     </style>
-
 </head>
-
 
 <body>
 
-    <div class="container">
 
-    </div>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+      
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+          apiKey: "AIzaSyCmmOK8fYzKkTgK9utKOlCHf-s7ffLAZ_c",
+          authDomain: "gerenciamento-6cf51.firebaseapp.com",
+          projectId: "gerenciamento-6cf51",
+          storageBucket: "gerenciamento-6cf51.appspot.com",
+          messagingSenderId: "895635359248",
+          appId: "1:895635359248:web:94593ae64d43be58156c95",
+          measurementId: "G-1Z5SP2Y2LY"
+        };
+      
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const dbRef = ref(database, "https://gerenciamento-6cf51-default-rtdb.firebaseio.com/");
+
+        set(dbRef, {
+  chave1: "valor1",
+  chave2: "valor2",
+});
+
+// Leia dados do banco de dados
+get(dbRef)
+  .then((snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      console.log(data);
+    } else {
+      console.log("Nenhum dado encontrado.");
+    }
+  })
+  .catch((error) => {
+    console.error("Erro ao ler dados: " + error.message);
+  });
+
+      </script>
+   
 
     <select id="corte">
         <option value="Degrade">Degrade + Sobrancelha</option>
@@ -132,9 +163,7 @@
         <option value="BNavalha">Tirar Barba Navalha</option>
         <option value="Pezinho">Pezinho</option>
         <option value="Freestyle">Freestyle</option>
-
     </select>
-
 
     <button onclick="adicionarRegistro()">Adicionar Registro</button>
     <button onclick="resetarSistema()">Resetar Sistema</button>
@@ -157,13 +186,31 @@
         <span id="total">R$ 0.00</span>
     </div>
 
-
     <div>
-
         <img src="https://img.freepik.com/vetores-premium/design-de-logotipo-de-barbearia-de-luxo_313044-6.jpg" alt="">
     </div>
 
     <script>
+        const dadosDiv = document.getElementById('dados');
+
+        const eventSource = new EventSource('/sse'); // Conecte-se ao servidor SSE
+
+        eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            // Atualize os dados na página com os novos dados recebidos
+            dadosDiv.innerHTML = `
+                <p>Data: ${data.data}</p>
+                <p>Estilo: ${data.estilo}</p>
+                <p>Valor: R$ ${data.valor.toFixed(2)}</p>
+            `;
+        };
+
+        eventSource.onerror = (error) => {
+            console.error('Erro na conexão SSE:', error);
+            eventSource.close();
+        };
+
         function adicionarRegistro() {
             const corteSelecionado = document.getElementById("corte").value;
             const valorCorte = obterValorCorte(corteSelecionado);
@@ -204,8 +251,6 @@
                 BNavalha: 25.00,
                 Pezinho: 10.00,
                 Freestyle: 10.00,
-
-
             };
 
             return valoresCortes[corte] || 0;
@@ -217,7 +262,6 @@
             totalGeral = 0;
             document.getElementById("total").textContent = "R$ 0.00";
         }
-
 
         function calcularTotal() {
             const registros = JSON.parse(localStorage.getItem("registros")) || [];
@@ -245,10 +289,6 @@
                 valorCell.innerText = `R$ ${registro.valor.toFixed(2)}`;
             });
         });
-
-        document.getElementById("corte").addEventListener("change", atualizarValor);
     </script>
-
 </body>
-
 </html>
