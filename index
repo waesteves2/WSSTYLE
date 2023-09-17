@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Ganhos</title>
+    <link rel="shortcut icon"
+        href="https://png.pngtree.com/png-clipart/20200701/original/pngtree-mustache-icon-design-illustration-png-image_5347943.jpg"
+        type="image/x-icon">
+
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: rgb(14, 16, 15);
+            color: goldenrod;
+            text-align: center;
+        }
+
+        h1 {
+            color: goldenrod;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        select,
+        input[type="text"] {
+            width: 100%;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid goldenrod;
+            border-radius: 4px;
+            background-color: black;
+            color: goldenrod;
+            text-align: center;
+            font-size: 15px;
+
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: goldenrod;
+            color: black;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: darkgoldenrod;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid goldenrod;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: goldenrod;
+            color: black;
+        }
+
+        @media (max-width: 768px) {
+
+            select,
+            input[type="text"] {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            button {
+                margin-bottom: 10px;
+            }
+        }
+
+        img {
+
+            width: 100%;
+            height: 100%;
+        }
+
+        .container {
+
+            width: 100%;
+            padding: 25px;
+            background-color: black;
+        }
+
+      h1{
+
+        font-size: 20px;
+
+      }
+    </style>
+
+</head>
+
+
+<body>
+
+    <div class="container">
+
+    </div>
+
+    <select id="corte">
+        <option value="Degrade">Degrade + Sobrancelha</option>
+        <option value="CorteSimples">Corte Simples + Sobrancelha</option>
+        <option value="Barba">Barba</option>
+        <option value="Sobrancelha">Sobrancelha</option>
+        <option value="BMaquina">Tirar Barba Máquina</option>
+        <option value="BNavalha">Tirar Barba Navalha</option>
+        <option value="Pezinho">Pezinho</option>
+        <option value="Freestyle">Freestyle</option>
+
+    </select>
+
+
+    <button onclick="adicionarRegistro()">Adicionar Registro</button>
+    <button onclick="resetarSistema()">Resetar Sistema</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Estilo</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody id="registros">
+        </tbody>
+    </table>
+
+    <br>
+    <div>
+        <label>Total Geral:</label>
+        <span id="total">R$ 0.00</span>
+    </div>
+
+
+    <div>
+
+        <img src="https://img.freepik.com/vetores-premium/design-de-logotipo-de-barbearia-de-luxo_313044-6.jpg" alt="">
+    </div>
+
+    <script>
+        function adicionarRegistro() {
+            const corteSelecionado = document.getElementById("corte").value;
+            const valorCorte = obterValorCorte(corteSelecionado);
+            const dataAtual = new Date().toLocaleDateString();
+
+            const registro = {
+                data: dataAtual,
+                estilo: corteSelecionado,
+                valor: valorCorte
+            };
+
+            const tabela = document.getElementById("registros");
+            const newRow = tabela.insertRow();
+            const dataCell = newRow.insertCell(0);
+            const estiloCell = newRow.insertCell(1);
+            const valorCell = newRow.insertCell(2);
+
+            dataCell.innerText = registro.data;
+            estiloCell.innerText = registro.estilo;
+            valorCell.innerText = `R$ ${registro.valor.toFixed(2)}`;
+
+            const registrosSalvos = JSON.parse(localStorage.getItem("registros")) || [];
+            registrosSalvos.push(registro);
+            localStorage.setItem("registros", JSON.stringify(registrosSalvos));
+
+            document.getElementById("corte").value = "";
+
+            calcularTotal();
+        }
+
+        function obterValorCorte(corte) {
+            const valoresCortes = {
+                Degrade: 25.00,
+                CorteSimples: 20.00,
+                Barba: 15.00,
+                Sobrancelha: 10.00,
+                BMaquina: 10.00,
+                BNavalha: 25.00,
+                Pezinho: 10.00,
+                Freestyle: 10.00,
+
+
+            };
+
+            return valoresCortes[corte] || 0;
+        }
+
+        function resetarSistema() {
+            localStorage.removeItem("registros");
+            document.getElementById("registros").innerHTML = "";
+            totalGeral = 0;
+            document.getElementById("total").textContent = "R$ 0.00";
+        }
+
+
+        function calcularTotal() {
+            const registros = JSON.parse(localStorage.getItem("registros")) || [];
+
+            totalGeral = registros.reduce((total, registro) => {
+                return total + registro.valor;
+            }, 0);
+
+            document.getElementById("total").textContent = `R$ ${totalGeral.toFixed(2)}`;
+        }
+
+        window.addEventListener("load", () => {
+            calcularTotal();
+            const registrosSalvos = JSON.parse(localStorage.getItem("registros")) || [];
+            const tabela = document.getElementById("registros");
+
+            registrosSalvos.forEach((registro) => {
+                const newRow = tabela.insertRow();
+                const dataCell = newRow.insertCell(0);
+                const estiloCell = newRow.insertCell(1);
+                const valorCell = newRow.insertCell(2);
+
+                dataCell.innerText = registro.data;
+                estiloCell.innerText = registro.estilo;
+                valorCell.innerText = `R$ ${registro.valor.toFixed(2)}`;
+            });
+        });
+
+        document.getElementById("corte").addEventListener("change", atualizarValor);
+    </script>
+
+</body>
+
+</html>
